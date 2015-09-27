@@ -108,7 +108,7 @@ var audrey= audrey2("myView", view);
 
 //Program version and options
 program
-  .version('1.0.2')
+  .version('1.0.3')
   .option('-p, --parent', 'work over parent version **.??.??')
   .option('-c, --children', 'work over child version ??.**.??')
   .option('-g, --grand-child', 'work over grand-child version ??.??.**')
@@ -377,7 +377,7 @@ function changePackage(newVersion){
 
 function rewind(Version, callBack){
   com('git', ["tag", Version, "-d" ], function(resp){
-    console.log("git say.. "+resp);//solved with console to finish quickly
+    console.log("git said.. "+resp);//solved with console to finish quickly
   });
   audrey.err("S01", "Deleted git tag");
   if(program.verbose) {

@@ -2,9 +2,9 @@
 
 > Version counter for package.json adn git tags
 
-Dub help you with the count of your releases. You don't have to remember or check at git to know the next version number. You'll never have a mistaken version-tag in your repository. And also, you don't have to open your "package.json" file to update the version. All is made by dub, with one simple command. 
+Dub help you with the count of your releases. You don't have to remember or check at git to know the next version number. You'll never have a mistaken version-tag in your repository. And also, you don't have to open your "package.json" file to update the version. All this things are made by dub in a simple way. 
 
-Only have to take care about the first git tag name release. Then you can call dub with no worries. You can use different naming convention in different projects and you don't have to remember each.
+You only have to take care about the first git tag name. Then you can call dub with no worries. You can use different naming convention in different projects and you don't have to remember each.
 
 
 ## Install
@@ -19,31 +19,43 @@ $ npm install -g dub-plus
 ### Upgrade the git tag
 
 ```shell
-dub +
+$ dub +
 ```
-update your tag xx.xx.xx  to xx.xx.(xx+1)
+update your version version xx.xx.xx  to xx.xx.(xx+1)
 
 
 
 ```shell
-dub ++
+$ dub ++
 ```
-update your tag xx.xx.xx  to xx.(xx+1).xx
+update your version xx.xx.xx  to xx.(xx+1).xx
 
 
 
 ```shell
-dub +++
+$ dub +++
 ```
-update your tag xx.xx.xx  to (xx+1).xx.xx
+update your version xx.xx.xx  to (xx+1).xx.xx
+
 
 
 ### Downgrade the git tag
 
 ```shell
-dub -
+$ dub -
 ```
 delete the most recent version tag.
+
+## Then you can run
+
+```shell
+$ git push --tags
+```
+or 
+
+```shell 
+$ npm publish
+```
 
 ## Package version control
 
