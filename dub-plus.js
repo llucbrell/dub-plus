@@ -394,7 +394,7 @@ function printLicense(){
 }
 
 function printCopyright(){
-  console.log("\nDUB-PLUS - software to control git tag release versions names\n"
+  console.log("\nDUB-PLUS - version counter for git tags\n"
     +"\nCopyright (c) 2015 Lucas_C/llucbrell"
 +"\n_"
     +"\nThis program is free software: you can redistribute it and/or modify"
