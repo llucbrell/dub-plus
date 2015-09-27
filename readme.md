@@ -21,21 +21,21 @@ $ npm install -g dub-plus
 ```shell
 dub +
 ```
-update your tag ??.??.xx  to ??.??.(xx+1)
+update your tag xx.xx.xx  to xx.xx.(xx+1)
 
 
 
 ```shell
 dub ++
 ```
-update your tag ??.xx.??  to ??.(xx+1).??
+update your tag xx.xx.xx  to xx.(xx+1).xx
 
 
 
 ```shell
 dub +++
 ```
-update your tag xx.??.??  to (xx*+1).??.??
+update your tag xx.xx.xx  to (xx+1).xx.xx
 
 
 ### Downgrade the git tag

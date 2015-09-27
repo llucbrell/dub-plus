@@ -1,40 +1,42 @@
 {
-  "name": "dub-plus",
-  "main": "dub-plus.js",
-  "dependencies": {
-    "audrey-two": "^2.1.0",
-    "chalk": "^1.1.1",
-    "commander": "^2.8.1",
-    "json-format": "0.0.1"
-  },
-  "bin": {
-    "dub": "./dub-plus.js"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "preferGlobal": "true",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/llucbrell/dub-plus.git"
-  },
-  "author": "Lucas_C/llucbrell",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/llucbrell/dub-plus/issues"
-  },
-  "homepage": "https://github.com/llucbrell/dub-plus#readme",
-  "keywords": [
-    "git",
-    "tags",
-    "tag",
-    "version",
-    "name",
-    "release",
-    "releases",
-    "control"
-  ],
-  "version": "1.0.0",
-  "description": ""
+	"name": "dub-plus",
+	"main": "dub-plus.js",
+	"dependencies": {
+		"audrey-two": "^2.1.0",
+		"chalk": "^1.1.1",
+		"commander": "^2.8.1",
+		"json-format": "0.0.1"
+	},
+	"bin": {
+		"dub": "./dub-plus.js"
+	},
+	"devDependencies": {
+		
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"preferGlobal": "true",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/llucbrell/dub-plus.git"
+	},
+	"author": "Lucas_C/llucbrell",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/llucbrell/dub-plus/issues"
+	},
+	"homepage": "https://github.com/llucbrell/dub-plus#readme",
+	"keywords": [
+		"git",
+		"tags",
+		"tag",
+		"version",
+		"name",
+		"release",
+		"releases",
+		"control"
+	],
+	"version": "1.0.1",
+	"description": ""
 }
