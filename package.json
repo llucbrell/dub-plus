@@ -1,0 +1,27 @@
+{
+	"name": "dub-plus",
+	"description": "",
+	"main": "index.js",
+	"dependencies": {
+		"audrey-two": "^2.1.0",
+		"chalk": "^1.1.1",
+		"commander": "^2.8.1",
+		"json-format": "0.0.1"
+	},
+	"devDependencies": {
+		
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/llucbrell/dub-plus.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/llucbrell/dub-plus/issues"
+	},
+	"homepage": "https://github.com/llucbrell/dub-plus#readme"
+}
