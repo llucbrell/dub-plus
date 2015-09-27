@@ -108,7 +108,7 @@ var audrey= audrey2("myView", view);
 
 //Program version and options
 program
-  .version('0.0.1')
+  .version('1.0.2')
   .option('-p, --parent', 'work over parent version **.??.??')
   .option('-c, --children', 'work over child version ??.**.??')
   .option('-g, --grand-child', 'work over grand-child version ??.??.**')

@@ -1,8 +1,8 @@
 # dub-plus
 
-> Version counter for git tagging
+> Version counter for package.json adn git tags
 
-Dub-plus help you with the count of your releases. You don't have to remember or check at git to know the next version number. You'll never have a mistaken version-tag in your repository. And also, you don't have to open your "package.json" file to update the version. All is made by dub, with one simple command. 
+Dub help you with the count of your releases. You don't have to remember or check at git to know the next version number. You'll never have a mistaken version-tag in your repository. And also, you don't have to open your "package.json" file to update the version. All is made by dub, with one simple command. 
 
 Only have to take care about the first git tag name release. Then you can call dub with no worries. You can use different naming convention in different projects and you don't have to remember each.
 
