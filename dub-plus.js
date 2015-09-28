@@ -55,7 +55,7 @@
                 t          .ifi:::;:;1fft11if;L11LLf1itC8fi   
                    ;  C8LttttCCLttttttttG1ft1f        
                    :         t                             
-                  ;         ;                 Project-->     dub-plus v0.0.1        
+                  ;         ;                 Project-->     dub-plus         
                  L        t                 
                C       t                      Author---> Lucas_C/llucbrell/hobbescode         
                  8    C                       
@@ -108,7 +108,7 @@ var audrey= audrey2("myView", view);
 
 //Program version and options
 program
-  .version('1.0.3')
+  .version('1.0.4')
   .option('-p, --parent', 'work over parent version **.??.??')
   .option('-c, --children', 'work over child version ??.**.??')
   .option('-g, --grand-child', 'work over grand-child version ??.??.**')
