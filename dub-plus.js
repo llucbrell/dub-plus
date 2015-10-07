@@ -109,13 +109,13 @@ var audrey= audrey2("myView", view);
 //Program version and options
 program
   .version('1.0.4')
-  .option('-p, --parent', 'work over parent version **.??.??')
+  .option('-m, --major', 'work over major version **.??.??')
   .option('-c, --children', 'work over child version ??.**.??')
   .option('-g, --grand-child', 'work over grand-child version ??.??.**')
   .option('-j, --json', 'update package JSON')
   .option('-u, --undo', 'delete last tag') 
   .option('-r, --release', 'release a prerelease serie of ')
-  .option('-a, --prerelease', 'make a prerelease tag')
+  .option('-p, --prerelease', 'make a prerelease tag')
   .option('-v, --verbose', 'display more info of tagging');
 
 
@@ -215,7 +215,7 @@ function flow(sign){
 //signs for shortcut actions
 if(sign==="+") program.grandChild= true;
 if(sign==="++") program.children= true;
-if(sign==="+++") program.parent= true;
+if(sign==="+++") program.major= true;
 if(sign==="-") program.undo= true;
 
 //the flow of the program
@@ -239,14 +239,14 @@ newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
 }
 }
 }catch(err){
-  program.parent=false;
+  program.major=false;
   program.children=false;
   program.grandChild=false;
   program.undo=false;
   audrey.err("E04", "There is no release tags");
 }
 //for update tags
-if (program.grandChild || program.children || program.parent){
+if (program.grandChild || program.children || program.major){
 //inject to audrey
  audrey.fertilize({name: ">>version", value:"point tag to.. " + preformat + newVersion, color:"blue"}, "header");
 //write new tag to git
@@ -296,7 +296,7 @@ if(program.children){
  ++tags[1];
  tags[2]=0;
 }
-if(program.parent) {
+if(program.major) {
   ++tags[0];
     tags[1]=0;
     tags[2]=0;
