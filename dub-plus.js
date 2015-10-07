@@ -113,7 +113,9 @@ program
   .option('-c, --children', 'work over child version ??.**.??')
   .option('-g, --grand-child', 'work over grand-child version ??.??.**')
   .option('-j, --json', 'update package JSON')
-  .option('-u, --undo', 'delete last tag')
+  .option('-u, --undo', 'delete last tag') 
+  .option('-r, --release', 'release a prerelease serie of ')
+  .option('-a, --prerelease', 'make a prerelease tag')
   .option('-v, --verbose', 'display more info of tagging');
 
 
@@ -201,10 +203,12 @@ var gitTags= readTags();
 var versions=[];
 //to store the last released tag
 var lastTag;
+var nlastTag;
 var preformat;
 //get all the versions
 var newVersion;
-
+var prereleases=[];
+var lastVersionWithPrerel;
 
 function flow(sign){
 
@@ -225,19 +229,15 @@ else audrey.err("E03", "Can't find tag versions into git-repository\n", "Build a
 
 try{
 //calculate the next version by the options commander
-if(program.grandChild)++lastTag[2];
-
-if(program.children){
- ++lastTag[1];
- lastTag[2]=0;
-}
-if(program.parent)    {
-  ++lastTag[0];
-    lastTag[1]=0;
-    lastTag[2]=0;
-} 
-//put the correct format, add the v or version word before numbers
+if(!program.prerelease){ 
+  if(program.release){
 newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
+}else{
+  nlastTag= addOne(lastTag);
+//put the correct format, add the v or version word before numbers
+  newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
+}
+}
 }catch(err){
   program.parent=false;
   program.children=false;
@@ -249,9 +249,27 @@ newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
 if (program.grandChild || program.children || program.parent){
 //inject to audrey
  audrey.fertilize({name: ">>version", value:"point tag to.. " + preformat + newVersion, color:"blue"}, "header");
-//write new tag to git 
- writeTagToGit(preformat + newVersion);
+//write new tag to git
+ if(program.prerelease){
+  if(program.rawArgs[4]){
+    // there is an argument as the name of the tag
+    //add one to the version
+      nlastTag=addOne(lastTag);
+      newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
+    //write tag to git
+      writeTagToGit(preformat+ newVersion+"-"+ program.rawArgs[4]);
+  }
+  else {
+    //there is not an argument as name of prerelease tag
+     writePrerelease(lastTag);
+
+  }
+ } 
+ else writeTagToGit(preformat + newVersion);
 }
+
+
+
 //for delete tags
 if (program.undo){
   
@@ -270,6 +288,22 @@ if (program.undo){
 if (!program.undo) changePackage(newVersion);
 }
 
+function addOne(lastTag){
+  var tags= lastTag;
+if(program.grandChild)++tags[2];
+
+if(program.children){
+ ++tags[1];
+ tags[2]=0;
+}
+if(program.parent) {
+  ++tags[0];
+    tags[1]=0;
+    tags[2]=0;
+} 
+return tags
+}
+
 function readTags(){
   try{
   // array wher store the names of the git-tags 
@@ -286,21 +320,25 @@ function getAllTagsVersions(){
   versions=[];
   // get all the tag versions
  gitTags.forEach(function(element){
-    var vers= element.match(/.+[0-9]+.[0-9]+.[0-9]+/);
+    var vers= element.match(/[0-9]+[.][0-9]+[.][0-9]+/);
     if (vers) {
       versions.push(vers[0]);
       //get the correct format
       var tex= element.match(/[^0-9]+/);
       if (tex) preformat= tex;
       else preformat="";
+      getPrereleases(element);
     }
 
  });
+// console.log(prereleases);
 }
+
 
 function getLastVTag(versions){
   var numb=[];
-  var par, chi, gra;//to store the different values of the last vers
+  var par, chi, gra;
+//to store the different values of the last vers
 //give the min value
   par=0;
   chi=0;
@@ -336,7 +374,110 @@ function getLastVTag(versions){
   return max;
 }
 
+function getPrereleases(element){
+  // only the number all the tag versions
+  var versi= element.match(/[0-9]+[.][0-9]+[.][0-9]+/);
+  // get all the prereleases tag versions
+  var prerel= element.match(/-[0-9a-zA-Z]+[.][0-9a-zA-Z]+[.][0-9]+/);
+  //if there is a prerelease store the version and the pre
+  // in one array of arrays
+  if(prerel){
+   var arr= [versi, prerel]; 
+   prereleases.push(arr);
+  }
+}
+
+function checkPrereleases(prereleaseVers){
+  var preReldefTag;
+  var ultim;
+  var definitive;
+  var checker= prereleaseVers[0].toString().match(/[0-9]+/g);
+  var ar=[];
+  if(checker[0]&&checker[1]&&checker[2]){
+    prereleaseVers.forEach(function(element){
+      ar.push(element.toString());
+    });
+  //check if there is only numbers and dots
+   ultim=getLastVTag(ar);
+    //add one to the prereleasetag
+   preReldefTag=addOne(ultim);
+     //create a new correct prerelease version tag    
+   definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
++"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];  
+  }
+  else{ //there is some words in the prerelease sem-ver
+  if(checker[0]==="alpha" ||checker[0]==="Alpha" || checker[0]==="ALPHA" && checker[1] && checker[2]){
+    //there is alpha-beta convention with two numbers
+    ultim=getLastAB(2);
+    preReldefTag=addOneAB(ultim, 2);
+  }
+  if(checker[0]==="alpha" ||checker[0]==="Alpha" || checker[0]==="ALPHA" && checker[1] && !checker[2]){
+    //there is alpha-beta convention with one number
+    ultim=getLastAB(1);
+    preReldefTag=addOneAB(ultim, 1);
+  }
+  } 
+  return definitive;
+}
+
+function getLastPTag(prereleases){
+var numb=[];
+var preR=[];
+var prereleaseVers=[];
+  var par, chi, gra;
+//to store the different values of the last vers
+//give the min value
+  par=0;
+  chi=0;
+  gra=0;
+
+  for(var i=0; i<prereleases.length; i++){
+   
+      var v= prereleases[i][0].toString().match(/[0-9]+/g);
+      var arri=[];
+      //transform to int and store the values in one array of arrays
+      arri.push(parseInt(v[0], 10));
+      arri.push(parseInt(v[1], 10));
+      arri.push(parseInt(v[2], 10));
+      numb.push(arri);
+      preR.push(prereleases[i][1]);
+    }
+//iterate over all the versions
+  for(var ii=0; ii<numb.length; ii++){
+        if(numb[ii][0]>par){
+          par= numb[ii][0];
+          chi= numb[ii][1];
+          gra= numb[ii][2];
+          if(prereleaseVers[0] === undefined) prereleaseVers.push(preR[ii]);
+          else prereleaseVers=[preR[ii]];
+        }
+        if(numb[ii][1]>chi && numb[ii][0] ===par){
+          chi= numb[ii][1];
+          gra= numb[ii][2];
+          if(prereleaseVers[0] === undefined) prereleaseVers.push(preR[ii]);
+          else prereleaseVers=[preR[ii]];
+        }
+        if(numb[ii][2]>gra && numb[ii][0] === par && numb[ii][1]=== chi){
+          gra= numb[ii][2];
+          if(prereleaseVers[0] === undefined) prereleaseVers.push(preR[ii]);
+          else prereleaseVers=[preR[ii]];
+        }
+        if(numb[ii][0]===par && numb[ii][1]=== chi && numb[ii][2]===gra){
+          prereleaseVers.push(preR[ii]);
+        }
+    }
+ lastVersionWithPrerel=[par, chi, gra];
+ var lastV=getLastVTag(versions);
+ if(lastV[0]>lastVersionWithPrerel[0] || lastV[1]>lastVersionWithPrerel[1] || lastV[2]>lastVersionWithPrerel[2]){
+    lastVersionWithPrerel=addOne(lastV);
+    prereleaseVers=["-0.0.0"];
+    audrey.err("W03","There is no prerelease tag name defined, set as default", "-0.0.1");
+ }
+ return prereleaseVers;
+}
+
 function writeTagToGit(newVersion){
+  console.log(newVersion);
   //add tag to git using shell commands
   com('git', ["tag", newVersion], function(resp){
   });
@@ -386,6 +527,40 @@ function rewind(Version, callBack){
     });
   }
   callBack();
+}
+
+
+function writePrerelease(lastTag){
+  var look=lookFor(lastTag);
+  if(look){
+     nlastTag=addOne(lastTag);
+      newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
+    //write tag to git
+      writeTagToGit(preformat+ newVersion+"-"+"0.0.1");
+  }
+  else{
+       //search for prereleasestags
+  var preRTags= getLastPTag(prereleases);
+      // check for the way of updgrade prerelease
+  var prereleaseVersion=checkPrereleases(preRTags);
+    
+  //write to gitTags
+  writeTagToGit(prereleaseVersion);
+  }
+}
+
+function lookFor(lastTag){
+
+  try{
+    // array wher store the names of the git-tags 
+    var gs = fs.readFileSync('./.git/refs/tags/'+preformat+lastTag[0]+"."
+    +lastTag[1]+"."+lastTag[2]);
+    return true;
+  }
+  catch(err){
+    return false;
+  }
+
 }
 
 function printLicense(){

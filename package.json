@@ -37,6 +37,6 @@
 		"releases",
 		"control"
 	],
-	"version": "1.0.4",
-	"description": "version counter for package.json and git-tags"
+	"description": "version counter for package.json and git-tags",
+	"version": "1.1.0"
 }

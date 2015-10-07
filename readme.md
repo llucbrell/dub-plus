@@ -72,7 +72,14 @@ If there is a package.json in the root directory it is updated when you type som
 
 * Dub is going to check your last git-tag release and copy the scheme. So if you like to name your versions vX.X.X dub write vX.X.X++ in git. If you like version-X.X.X dub write version-X.X.X, you don't have to change the way you dub things. It doesn't matter, the software take care about it.
 
-* In the package.json file dub allways write the semServer readable way for you.  So it allways work with npm and other package managers.  
+* In the package.json file dub allways write the semServer readable way for you. So it allways work with npm and other package managers.
+
+## Options
+
+``shell
+$ dub + -v
+```
+Verbose mode, let you see the git tags you have.
 
 ## Dependencies
 
