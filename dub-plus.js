@@ -414,7 +414,7 @@ function checkPrereleases(prereleaseVers){
   else{ //there is some words in the prerelease sem-ver
    checker= prereleaseVers[0].toString().match(/[a-zA-Z]+/g);
    if(checker[0]==="alpha" || checker[0]==="Alpha" || checker[0]==="ALPHA" 
-      || checker[0]==="BETHA" || checker[0]==="Betha" || checker[0]==="betha"){    
+      || checker[0]==="BETA" || checker[0]==="Beta" || checker[0]==="beta"){    
     ultim=getLastABTag();
     preReldefTag=addOneAB(ultim);
    
@@ -480,20 +480,20 @@ function getLastABTag(){
 function addOneAB(ultim){
   var tags=ultim; 
 if(program.major){
-  if(ultim[0]==="betha" || ultim[0]==="Betha" || ultim[0]==="BETHA"){
-    audrey.err("W05", "You can't upgrade a betha prerelease, please use -r if you want a release");
+  if(ultim[0]==="beta" || ultim[0]==="Beta" || ultim[0]==="BETA"){
+    audrey.err("W05", "You can't upgrade a beta prerelease, please use -r if you want a release");
   }
   if(ultim[0]==="Alpha" || ultim[0]==="ALPHA" || ultim[0]==="alpha"){
      //make the correct format for major-prerelease
      switch (ultim[0]){
       case "ALPHA":
-        tags[0]= "BETHA";
+        tags[0]= "BETA";
         break;
       case "alpha":
-        tags[0]= "betha";
+        tags[0]= "beta";
         break;  
       case "Alpha":
-        tags[0]="Betha";
+        tags[0]="Beta";
         break;    
      }
       //update the others
