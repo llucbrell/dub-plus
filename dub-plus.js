@@ -114,13 +114,13 @@ program
   .option('-g, --grand-child', 'work over grand-child version ??.??.**')
   .option('-j, --json', 'update package JSON')
   .option('-u, --undo', 'delete last tag') 
-  .option('-r, --release', 'release a prerelease serie of ')
+  .option('-r, --release', 'release a version number from serie of releases')
   .option('-p, --prerelease', 'make a prerelease tag')
   .option('-v, --verbose', 'display more info of tagging');
 
 
 program
-  .command('release') 
+  .command('rel') 
   .description('create a git tag for a new release')
   .action(function(name){
     //body...
@@ -208,6 +208,7 @@ var preformat;
 //get all the versions
 var newVersion;
 var prereleases=[];
+var preRTags;
 var lastVersionWithPrerel;
 
 function flow(sign){
@@ -231,12 +232,13 @@ try{
 //calculate the next version by the options commander
 if(!program.prerelease){ 
   if(program.release){
-newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
-}else{
-  nlastTag= addOne(lastTag);
-//put the correct format, add the v or version word before numbers
-  newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
-}
+    newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
+  }
+  else{
+    nlastTag= addOne(lastTag);
+  //put the correct format, add the v or version word before numbers
+    newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
+  }
 }
 }catch(err){
   program.major=false;
@@ -247,9 +249,7 @@ newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
 }
 //for update tags
 if (program.grandChild || program.children || program.major){
-//inject to audrey
- audrey.fertilize({name: ">>version", value:"point tag to.. " + preformat + newVersion, color:"blue"}, "header");
-//write new tag to git
+
  if(program.prerelease){
   if(program.rawArgs[4]){
     // there is an argument as the name of the tag
@@ -258,6 +258,7 @@ if (program.grandChild || program.children || program.major){
       newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
     //write tag to git
       writeTagToGit(preformat+ newVersion+"-"+ program.rawArgs[4]);
+      audrey.err("S03","writting version prerelease", newVersion +"-"+ program.rawArgs[4]);  
   }
   else {
     //there is not an argument as name of prerelease tag
@@ -266,6 +267,9 @@ if (program.grandChild || program.children || program.major){
   }
  } 
  else writeTagToGit(preformat + newVersion);
+ //inject to audrey
+ audrey.fertilize({name: ">>version", value:"point tag to version.. "+ newVersion, color:"blue"}, "header");
+
 }
 
 
@@ -278,7 +282,7 @@ if (program.undo){
  getAllTagsVersions();
  lastTag=getLastVTag(versions);
  newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
- audrey.fertilize({name: ">>version", value: "point tag to.. "+preformat + newVersion, color:"blue"}, "header");
+ audrey.fertilize({name: ">>version", value: "point tag to.. " + newVersion, color:"blue"}, "header");
 //to write on package json
  changePackage(newVersion); 
  });
@@ -301,7 +305,7 @@ if(program.major) {
     tags[1]=0;
     tags[2]=0;
 } 
-return tags
+return tags;
 }
 
 function readTags(){
@@ -403,21 +407,110 @@ function checkPrereleases(prereleaseVers){
    preReldefTag=addOne(ultim);
      //create a new correct prerelease version tag    
    definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
-+"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];  
++"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
+
+   audrey.err("S03","writting version prerelease", "-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2]);  
   }
   else{ //there is some words in the prerelease sem-ver
-  if(checker[0]==="alpha" ||checker[0]==="Alpha" || checker[0]==="ALPHA" && checker[1] && checker[2]){
-    //there is alpha-beta convention with two numbers
-    ultim=getLastAB(2);
-    preReldefTag=addOneAB(ultim, 2);
-  }
-  if(checker[0]==="alpha" ||checker[0]==="Alpha" || checker[0]==="ALPHA" && checker[1] && !checker[2]){
-    //there is alpha-beta convention with one number
-    ultim=getLastAB(1);
-    preReldefTag=addOneAB(ultim, 1);
-  }
+   checker= prereleaseVers[0].toString().match(/[a-zA-Z]+/g);
+   if(checker[0]==="alpha" || checker[0]==="Alpha" || checker[0]==="ALPHA" 
+      || checker[0]==="BETHA" || checker[0]==="Betha" || checker[0]==="betha"){    
+    ultim=getLastABTag();
+    preReldefTag=addOneAB(ultim);
+   
+   definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
++"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
+    
+   audrey.err("S03","writting version prerelease", "-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2]); 
+   }  
+   else{
+   audrey.err("W04","There is some problem with the version format");
+   }
+  
   } 
   return definitive;
+}
+
+function getLastABTag(){
+  var numb=[];
+  var par, chi, gra;
+//to store the different values of the last vers
+
+  // get separately the values of the versions
+    preRTags.forEach(function(element){
+      var v= element[0].match(/[0-9a-zA-Z]+/g);
+      var arri=[];
+      //transform to int and store the values in one array of arrays
+      arri.push(v[0]);
+      arri.push(parseInt(v[1], 10));
+      arri.push(parseInt(v[2], 10));
+      numb.push(arri);
+    });
+
+//give the min value
+  par="a";
+  chi=0;
+  gra=0;
+
+//iterate over all the versions
+    numb.forEach(function(element){
+      if(element[0][0]=== "a"|| element[0][0]=== "A" && par[0][0]!== "b"|| par[0][0]!== "B"){
+          par= element[0];
+          chi= element[1];
+          gra= element[2];
+        }
+        if(element[0][0]=== "b"|| element[0][0]=== "B"){
+          par= element[0];
+          chi= element[1];
+          gra= element[2];
+        }
+        if(element[1]>chi && (element[0][0] === par|| element[0][0] === "A")){
+          chi= element[1];
+          gra= element[2];
+        }
+        if(element[2]>gra && (element[0][0] === par|| element[0][0] === "A") && element[1]=== chi){
+          gra= element[2];
+        }
+    });
+ 
+  var max=[par, chi, gra];
+  return max;
+}
+
+function addOneAB(ultim){
+  var tags=ultim; 
+if(program.major){
+  if(ultim[0]==="betha" || ultim[0]==="Betha" || ultim[0]==="BETHA"){
+    audrey.err("W05", "You can't upgrade a betha prerelease, please use -r if you want a release");
+  }
+  if(ultim[0]==="Alpha" || ultim[0]==="ALPHA" || ultim[0]==="alpha"){
+     //make the correct format for major-prerelease
+     switch (ultim[0]){
+      case "ALPHA":
+        tags[0]= "BETHA";
+        break;
+      case "alpha":
+        tags[0]= "betha";
+        break;  
+      case "Alpha":
+        tags[0]="Betha";
+        break;    
+     }
+      //update the others
+      tags[1]=0;
+      tags[2]=0;
+  } 
+ }
+
+if(program.children){
+ ++tags[1];
+ tags[2]=0;
+}
+
+if(program.grandChild)++tags[2];
+
+
+return tags;
 }
 
 function getLastPTag(prereleases){
@@ -477,7 +570,8 @@ var prereleaseVers=[];
 }
 
 function writeTagToGit(newVersion){
-  console.log(newVersion);
+  if(newVersion !==undefined){
+  //console.log(newVersion);
   //add tag to git using shell commands
   com('git', ["tag", newVersion], function(resp){
   });
@@ -487,6 +581,7 @@ function writeTagToGit(newVersion){
       console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
     });
   }
+ }
 }
   
   //run commands on the child process --> for linux
@@ -502,7 +597,8 @@ function writeTagToGit(newVersion){
   //parse, change and write the JSON-file
 
 function changePackage(newVersion){
-  try{
+  if(newVersion !== undefined){
+    try{
       var format= require('json-format');
       var Jpack= fs.readFileSync("./package.json");
       var pack= JSON.parse(Jpack);
@@ -514,6 +610,7 @@ function changePackage(newVersion){
     catch(err){
       audrey.err("W01", "There is no package.json");
     }
+  }
 }
 
 function rewind(Version, callBack){
@@ -531,21 +628,24 @@ function rewind(Version, callBack){
 
 
 function writePrerelease(lastTag){
+//look for a definitive release tag
   var look=lookFor(lastTag);
   if(look){
-     nlastTag=addOne(lastTag);
+    //if there is a release, create a new upgraded version + prerelease
+      nlastTag=addOne(lastTag);
       newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
     //write tag to git
       writeTagToGit(preformat+ newVersion+"-"+"0.0.1");
-  }
-  else{
+      audrey.err("S03","writting version prerelease", "-0.0.1");    
+  } 
+    else{       
        //search for prereleasestags
-  var preRTags= getLastPTag(prereleases);
-      // check for the way of updgrade prerelease
-  var prereleaseVersion=checkPrereleases(preRTags);
+         preRTags= getLastPTag(prereleases);
+       //check for the way (format) of updgrade prerelease
+         newVersion=checkPrereleases(preRTags);
+       //write to gitTags
+         writeTagToGit(newVersion);
     
-  //write to gitTags
-  writeTagToGit(prereleaseVersion);
   }
 }
 
