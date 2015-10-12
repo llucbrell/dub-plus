@@ -109,16 +109,16 @@ var audrey= audrey2("myView", view);
 //Program version and options
 program
   .version('1.0.4')
-  .option('-m, --major', 'work over major version **.??.??')
-  .option('-c, --children', 'work over child version ??.**.??')
-  .option('-g, --grand-child', 'work over grand-child version ??.??.**')
-  .option('-j, --json', 'update package JSON')
-  .option('-u, --undo', 'delete last tag') 
+ // .option('-m, --major', 'work over major version **.??.??')
+ // .option('-c, --children', 'work over child version ??.**.??')
+ // .option('-g, --grand-child', 'work over grand-child version ??.??.**')
+ // .option('-j, --json', 'update package JSON')
+ // .option('-u, --undo', 'delete last tag') 
   .option('-r, --release', 'release a version number from serie of releases')
   .option('-p, --prerelease', 'make a prerelease tag')
   .option('-v, --verbose', 'display more info of tagging');
 
-
+/*
 program
   .command('rel') 
   .description('create a git tag for a new release')
@@ -127,7 +127,7 @@ program
     flow();
     audrey.encore();
   }); 
-
+*/
   program
   .command('+') 
   .description('update one on ??.??.**')
@@ -413,7 +413,8 @@ function checkPrereleases(prereleaseVers){
   }
   else{ //there is some words in the prerelease sem-ver
    checker= prereleaseVers[0].toString().match(/[a-zA-Z]+/g);
-   if(checker[0]==="alpha" || checker[0]==="Alpha" || checker[0]==="ALPHA" 
+   if(checker[0]==="a" || checker[0]==="A" || checker[0]==="b" || checker[0]==="B"
+    || checker[0]==="alpha" || checker[0]==="Alpha" || checker[0]==="ALPHA" 
       || checker[0]==="BETA" || checker[0]==="Beta" || checker[0]==="beta"){    
     ultim=getLastABTag();
     preReldefTag=addOneAB(ultim);
@@ -480,10 +481,33 @@ function getLastABTag(){
 function addOneAB(ultim){
   var tags=ultim; 
 if(program.major){
-  if(ultim[0]==="beta" || ultim[0]==="Beta" || ultim[0]==="BETA"){
-    audrey.err("W05", "You can't upgrade a beta prerelease, please use -r if you want a release");
+  
+  if(ultim[0]==="rc" || ultim[0]==="Rc" || ultim[0]==="RC"){
+    audrey.err("W05", "You can't upgrade a release candidate, please use -r if you wanna make an official release");
   }
-  if(ultim[0]==="Alpha" || ultim[0]==="ALPHA" || ultim[0]==="alpha"){
+  if(ultim[0]==="B" || ultim[0]==="b" || ultim[0]==="beta" || ultim[0]==="Beta" || ultim[0]==="BETA"){
+     switch (ultim[0]){
+          case "BETA":
+            tags[0]= "RC";
+            break;
+          case "beta":
+            tags[0]= "rc";
+            break;  
+          case "Beta":
+            tags[0]="Rc";
+            break; 
+          case "B":
+            tags[0]="RC";
+            break; 
+          case "b":
+            tags[0]="rc";
+            break;         
+         }
+      //update the others
+      tags[1]=0;
+      tags[2]=0;    
+  }
+  if(ultim[0]==="a" || ultim[0]==="A" || ultim[0]==="Alpha" || ultim[0]==="ALPHA" || ultim[0]==="alpha"){
      //make the correct format for major-prerelease
      switch (ultim[0]){
       case "ALPHA":
@@ -494,6 +518,12 @@ if(program.major){
         break;  
       case "Alpha":
         tags[0]="Beta";
+        break;
+      case "A":
+        tags[0]="B";
+        break; 
+      case "a":
+        tags[0]="b";
         break;    
      }
       //update the others
@@ -575,7 +605,7 @@ function writeTagToGit(newVersion){
   //add tag to git using shell commands
   com('git', ["tag", newVersion], function(resp){
   });
-  audrey.err("S01", "Writted new git tag");
+  audrey.err("S01", "Writting new git tag");
   if(program.verbose) {
     com('git', ["tag"], function(resp){
       console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
