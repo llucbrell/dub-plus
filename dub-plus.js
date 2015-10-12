@@ -109,7 +109,7 @@ var audrey= audrey2("myView", view);
 //Program version and options
 program
   .version('1.0.4')
- // .option('-m, --major', 'work over major version **.??.??')
+  .option('-m, --message', 'message for version-git-tag')
  // .option('-c, --children', 'work over child version ??.**.??')
  // .option('-g, --grand-child', 'work over grand-child version ??.??.**')
  // .option('-j, --json', 'update package JSON')
@@ -136,6 +136,15 @@ program
     flow('+');
     audrey.encore();
   }); 
+
+  program
+  .command('tag') 
+  .description('update one on ??.??.**')
+  .action(function(name){
+    //body...
+    showTags();
+    audrey.encore();
+  });  
 
 program
   .command('++') 
@@ -597,6 +606,13 @@ var prereleaseVers=[];
     audrey.err("W03","There is no prerelease tag name defined, set as default", "-0.0.1");
  }
  return prereleaseVers;
+}
+
+function showTags(){
+  com('git', ["tag"], function(resp){
+      console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly 
+ });
+
 }
 
 function writeTagToGit(newVersion){
