@@ -110,13 +110,11 @@ var audrey= audrey2("myView", view);
 program
   .version('1.0.4')
   .option('-m, --message', 'message for version-git-tag')
- // .option('-c, --children', 'work over child version ??.**.??')
- // .option('-g, --grand-child', 'work over grand-child version ??.??.**')
- // .option('-j, --json', 'update package JSON')
+  .option('-a, --anotated', 'add anotation at the end of commands, for version-anotated-git-tag')
  // .option('-u, --undo', 'delete last tag') 
-  .option('-r, --release', 'release a version number from serie of releases')
+  .option('-r, --release', 'release a version taking the last prerelease tag')
   .option('-p, --prerelease', 'make a prerelease tag')
-  .option('-v, --verbose', 'display more info of tagging');
+  .option('-v, --verbose', 'display more info from git tagging');
 
 /*
 program
@@ -138,8 +136,8 @@ program
   }); 
 
   program
-  .command('tag') 
-  .description('update one on ??.??.**')
+  .command('.') 
+  .description('show all git tags')
   .action(function(name){
     //body...
     showTags();
@@ -260,7 +258,7 @@ if(!program.prerelease){
 if (program.grandChild || program.children || program.major){
 
  if(program.prerelease){
-  if(program.rawArgs[4]){
+  if(program.rawArgs[4] && !program.anotated){
     // there is an argument as the name of the tag
     //add one to the version
       nlastTag=addOne(lastTag);
@@ -617,17 +615,36 @@ function showTags(){
 
 function writeTagToGit(newVersion){
   if(newVersion !==undefined){
-  //console.log(newVersion);
-  //add tag to git using shell commands
-  com('git', ["tag", newVersion], function(resp){
-  });
-  audrey.err("S01", "Writting new git tag");
-  if(program.verbose) {
-    com('git', ["tag"], function(resp){
-      console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
-    });
+
+    if(program.anotated){
+      if(program.rawArgs[program.rawArgs.length-1][0]==="-" || program.rawArgs[program.rawArgs.length-1][0]==="+"){
+        audrey.err("E01", "Writting anotated tag, be sure the message is at the end");
+      }
+      else{
+      //add anotated tag to git using shell commands
+      com('git', ["tag", "-a", newVersion, "-m", program.rawArgs[program.rawArgs.length-1]], function(resp){
+      });
+      audrey.err("S01", "Writting new git tag");
+      if(program.verbose) {
+        com('git', ["tag"], function(resp){
+          console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
+        });
+      }
+     } 
+    }
+    else{  
+      //add tag to git using shell commands
+      com('git', ["tag", newVersion], function(resp){
+      });
+      audrey.err("S01", "Writting new git tag");
+      if(program.verbose) {
+        com('git', ["tag"], function(resp){
+          console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
+        });
+      }
+     }
   }
- }
+
 }
   
   //run commands on the child process --> for linux
