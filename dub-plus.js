@@ -70,7 +70,7 @@
 
 //BASIC INITIAL ACTIONS
 
-//modules to load
+//load modules
 var program = require('commander');
 var audrey2 = require('audrey-two');
 var fs= require('fs');
@@ -99,7 +99,7 @@ var view={
         };
 
 
-//inicialize controller and pass the basic view
+//inicialize view-controller and pass the basic view
 var audrey= audrey2("myView", view);
 
 
@@ -115,17 +115,7 @@ program
   .option('-r, --release', 'release a version taking the last prerelease tag')
   .option('-p, --prerelease', 'make a prerelease tag')
   .option('-v, --verbose', 'display more info from git tagging');
-
-/*
-program
-  .command('rel') 
-  .description('create a git tag for a new release')
-  .action(function(name){
-    //body...
-    flow();
-    audrey.encore();
-  }); 
-*/
+//program commands
   program
   .command('+') 
   .description('update one on ??.??.**')
@@ -203,7 +193,8 @@ program
 //---------------------------------------------------------\\
 
 
-//variables for good
+//variables for correct program development
+//most of them global to get access through different functions
 var gitTags= readTags();
 
 // to store the only release tags
@@ -217,6 +208,11 @@ var newVersion;
 var prereleases=[];
 var preRTags;
 var lastVersionWithPrerel;
+
+/*Javascript has no problems with globals in console apps*/
+
+                 //PRINCIPAL PROGRAM WORK FLOW\\
+//---------------------------------------------------------\\
 
 function flow(sign){
 
@@ -265,7 +261,7 @@ if (program.grandChild || program.children || program.major){
       newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
     //write tag to git
       writeTagToGit(preformat+ newVersion+"-"+ program.rawArgs[4]);
-      audrey.err("S03","writting version prerelease", newVersion +"-"+ program.rawArgs[4]);  
+      audrey.err("S03","Writting version prerelease", newVersion +"-"+ program.rawArgs[4]);  
   }
   else {
     //there is not an argument as name of prerelease tag
@@ -283,21 +279,75 @@ if (program.grandChild || program.children || program.major){
 
 //for delete tags
 if (program.undo){
+//look if the last tag is not a prerelease
+ var looktag=lookFor(lastTag);
+//if there isn't a prerelease
+if(looktag){
   
  rewind(preformat + newVersion, function(){
- gitTags=readTags(); 
- getAllTagsVersions();
- lastTag=getLastVTag(versions);
- newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
- audrey.fertilize({name: ">>version", value: "point tag to.. " + newVersion, color:"blue"}, "header");
-//to write on package json
- changePackage(newVersion); 
- });
+   gitTags=readTags(); 
+   getAllTagsVersions();
+   lastTag=getLastVTag(versions);
+   looktag=lookFor(lastTag);
+    if(looktag){   
+       newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
+       audrey.fertilize({name: ">>version", value: "point tag to.. " + newVersion, color:"blue"}, "header");
+      //to write on package json
+       changePackage(newVersion); 
+    }
+    else{
+       preRTags= getLastPTag(prereleases);  
+    //check for the way (format) of updgrade prerelease
+      newVersion=checkPrereleases(preRTags, "no");
+      newVersion= newVersion.slice(1);
+      audrey.fertilize({name: ">>version", value: "point tag to.. " + newVersion, color:"blue"}, "header");
+      changePackage(newVersion); 
+
+}   
+}); 
+
+ }
+ else{
+  preRTags= getLastPTag(prereleases);  
+//check for the way (format) of updgrade prerelease
+  newVersion=checkPrereleases(preRTags);
+  newVersion= newVersion.slice(1);
+
+  rewind(preformat + newVersion, function(){
+    prereleases=[];
+    gitTags=readTags(); 
+    getAllTagsVersions();
+    lastTag=getLastVTag(versions);
+    looktag=lookFor(lastTag);
+    //look another time if there is a prerelease
+    if(looktag){
+      newVersion= lastTag[0]+"."+lastTag[1]+"."+lastTag[2];
+      audrey.fertilize({name: ">>version", value: "point tag to.. " + newVersion, color:"blue"}, "header");
+      //to write on package json
+      changePackage(newVersion);
+    }
+    else{
+    preRTags= getLastPTag(prereleases);
+      //check for the way (format) of updgrade prerelease         
+    newVersion=checkPrereleases(preRTags, "no");
+    changePackage(newVersion);
+    audrey.fertilize({name: ">>version", value: "point tag to.. " + newVersion, color:"blue"}, "header");
+    }
+
+  });
+    
+ }
  
 }
 //update one + to package
 if (!program.undo) changePackage(newVersion);
 }
+
+
+ 
+                 //AUXILIAR FUNCTIONS\\
+//---------------------------------------------------------\\
+
 
 function addOne(lastTag){
   var tags= lastTag;
@@ -398,38 +448,63 @@ function getPrereleases(element){
   }
 }
 
-function checkPrereleases(prereleaseVers){
+
+
+function checkPrereleases(prereleaseVers, mode){
   var preReldefTag;
   var ultim;
   var definitive;
   var checker= prereleaseVers[0].toString().match(/[0-9]+/g);
   var ar=[];
+  //console.log(prereleaseVers);
   if(checker[0]&&checker[1]&&checker[2]){
     prereleaseVers.forEach(function(element){
       ar.push(element.toString());
     });
   //check if there is only numbers and dots
    ultim=getLastVTag(ar);
+   //console.log(prereleaseVers);
+   //console.log(ultim);
     //add one to the prereleasetag
-   preReldefTag=addOne(ultim);
-     //create a new correct prerelease version tag    
-   definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
-+"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
+     if(!mode) {
+      preReldefTag=addOne(ultim);
+       //create a new correct prerelease version tag    
+     definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
+         +"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
+     audrey.err("S03","Checking version prerelease", "-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2]);  
 
-   audrey.err("S03","writting version prerelease", "-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2]);  
+    }
+    else{
+      preReldefTag=ultim;
+       //create a new correct prerelease version tag    
+     definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
+         +"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
+    }
+
   }
   else{ //there is some words in the prerelease sem-ver
    checker= prereleaseVers[0].toString().match(/[a-zA-Z]+/g);
    if(checker[0]==="a" || checker[0]==="A" || checker[0]==="b" || checker[0]==="B"
     || checker[0]==="alpha" || checker[0]==="Alpha" || checker[0]==="ALPHA" 
       || checker[0]==="BETA" || checker[0]==="Beta" || checker[0]==="beta"){    
+   
+    if(!mode) {
     ultim=getLastABTag();
     preReldefTag=addOneAB(ultim);
-   
-   definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
+     definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
 +"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
     
-   audrey.err("S03","writting version prerelease", "-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2]); 
+   audrey.err("S03","Checking version prerelease", "-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2]); 
+    }
+    else{
+      ultim=getLastABTag();
+      preReldefTag=addOneAB(ultim);
+     definitive= preformat + lastVersionWithPrerel[0]+"."+lastVersionWithPrerel[1]+"."+lastVersionWithPrerel[2]
++"-"+preReldefTag[0]+"."+preReldefTag[1]+"."+preReldefTag[2];
+    
+
+    }
+  
    }  
    else{
    audrey.err("W04","There is some problem with the version format");
@@ -438,6 +513,7 @@ function checkPrereleases(prereleaseVers){
   } 
   return definitive;
 }
+
 
 function getLastABTag(){
   var numb=[];
@@ -699,7 +775,7 @@ function writePrerelease(lastTag){
       newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
     //write tag to git
       writeTagToGit(preformat+ newVersion+"-"+"0.0.1");
-      audrey.err("S03","writting version prerelease", "-0.0.1");    
+      audrey.err("S03","Writting version prerelease", "-0.0.1");    
   } 
     else{       
        //search for prereleasestags
