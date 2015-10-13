@@ -80,6 +80,7 @@ var fs= require('fs');
 //view for audrey-two
 var view={ 
           header:[">>title"],
+          footer:[],
           title: 
               
  "   _     _          _          \n"
@@ -683,8 +684,11 @@ var prereleaseVers=[];
 }
 
 function showTags(){
+audrey.fertilize({name: ">>tags", value:"tags in your repository.. ", color:"green"}, "footer");
+
   com('git', ["tag"], function(resp){
-      console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly 
+
+      console.log(resp);
  });
 
 }
@@ -702,8 +706,11 @@ function writeTagToGit(newVersion){
       });
       audrey.err("S01", "Writting new git tag");
       if(program.verbose) {
+        audrey.fertilize({name: ">>tags", value:"tags in your repository.. ", color:"green"}, "footer");
+
+
         com('git', ["tag"], function(resp){
-          console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
+          console.log(resp);//solved with consol to finish quickly
         });
       }
      } 
@@ -714,8 +721,10 @@ function writeTagToGit(newVersion){
       });
       audrey.err("S01", "Writting new git tag");
       if(program.verbose) {
+        audrey.fertilize({name: ">>tags", value:"tags in your repository.. ", color:"green"}, "footer");
+
         com('git', ["tag"], function(resp){
-          console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
+          console.log(resp);//solved with consol to finish quickly
         });
       }
      }
@@ -758,8 +767,10 @@ function rewind(Version, callBack){
   });
   audrey.err("S01", "Deleted git tag");
   if(program.verbose) {
+   // audrey.fertilize({name: ">>tags", value:"tags in your repository.. ", color:"green"}, "footer");
+
     com('git', ["tag"], function(resp){
-      console.log("git tags in your repository \n" +resp);//solved with consol to finish quickly
+      console.log(resp);//solved with consol to finish quickly
     });
   }
   callBack();
