@@ -120,7 +120,7 @@ At this moment the prerelease counter only work with this kind of prereleases ta
 
 > a.x.x -->b.x.x -->rc.x.x -- Uppercase or lowercase.
 
-> x.x.x --> like the version counter -- only numbers.
+> x.x.x -->like the version counter -- only numbers.
 
 It'll be updated soon.
 
@@ -149,8 +149,8 @@ Deletes specified tag.
 
 ## Version specifications
 
-v1.0.0 - first release, version counter
-v1.0.0 - prerelease counter support
+* v1.0.0 - first release, version counter
+* 1.0.0 - prerelease counter support
 
 ## Dependencies
 
