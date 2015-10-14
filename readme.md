@@ -77,6 +77,8 @@ or
 $ npm publish
 ```
 
+
+
 ## Prerelease
 
 ### Counter
@@ -105,7 +107,7 @@ $ dub -p +++
 upgrade to X.X.X-beta.2.1
 
 
-``shell
+```shell
 $ dub + -r
 ```
 create a tag release with the same version X.X.X of the last prerelease
@@ -127,12 +129,12 @@ If there is a package.json in the root directory it's updated when you type some
 
 ## Aditional options and commands
 
-``shell
+```shell
 $ dub + -v
 ```
 Verbose mode, let you see the git tags you have.
 
-``shell
+```shell
 $ dub .
 ```
 Show the tags of your repository.
