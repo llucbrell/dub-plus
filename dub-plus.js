@@ -821,7 +821,7 @@ if(look){
       }
 }
 else{
-  audrey.err("W04", "Something was wrong with the name of the tag, can't delete tag");
+  audrey.err("E06", "Something was wrong with the name of the tag, can't delete tag");
 
 }   
 
