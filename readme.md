@@ -116,9 +116,9 @@ create a tag release with the same version X.X.X of the last prerelease
 
 At this moment the prerelease counter only work with this kind of prereleases tag.
 
-> alpha.x.x -->beta.x.x -->rc.x.x -- Uppercase or lowercase
-> a.x.x -->b.x.x -->rc.x.x -- Uppercase or lowercase
-> x.x.x --> like the version counter -- only numbers
+> alpha.x.x -->beta.x.x -->rc.x.x -- Uppercase or lowercase.
+> a.x.x -->b.x.x -->rc.x.x -- Uppercase or lowercase.
+> x.x.x --> like the version counter -- only numbers.
 
 It'll be updated soon.
 
@@ -138,6 +138,12 @@ Verbose mode, let you see the git tags you have.
 $ dub .
 ```
 Show the tags of your repository.
+
+```shell
+$ dub delete <name of tag>
+```
+
+Deletes specified tag.
 
 ## Version specifications
 
