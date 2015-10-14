@@ -109,35 +109,25 @@ var audrey= audrey2("myView", view);
 
 //Program version and options
 program
-  .version('1.0.4')
-  .option('-m, --message', 'message for version-git-tag')
+  .version('1.1.0')
+  //.option('-m, --metadata', 'message for version-git-tag')
   .option('-a, --anotated', 'add anotation at the end of commands, for version-anotated-git-tag')
- // .option('-u, --undo', 'delete last tag') 
-  .option('-r, --release', 'release a version taking the last prerelease tag')
+  .option('-r, --release', 'release a version from the last prerelease tag')
   .option('-p, --prerelease', 'make a prerelease tag')
   .option('-v, --verbose', 'display more info from git tagging');
 //program commands
-  program
+program
   .command('+') 
-  .description('update one on ??.??.**')
+  .description('upgrade one on ??.??.**')
   .action(function(name){
     //body...
     flow('+');
     audrey.encore();
-  }); 
-
-  program
-  .command('.') 
-  .description('show all git tags')
-  .action(function(name){
-    //body...
-    showTags();
-    audrey.encore();
-  });  
+  });   
 
 program
   .command('++') 
-  .description('update one on ??.**.??')
+  .description('upgrade one on ??.**.??')
   .action(function(name){
     //body...
     flow('++');
@@ -146,12 +136,21 @@ program
 
 program
   .command('+++') 
-  .description('update one on **.??.??')
+  .description('upgrade one on **.??.??')
   .action(function(name){
     //body...
     flow('+++');
     audrey.encore();
   }); 
+
+program
+  .command('.') 
+  .description('show all git tags')
+  .action(function(name){
+    //body...
+    showTags();
+    audrey.encore();
+  });
 
 program
   .command('-') 
@@ -162,7 +161,16 @@ program
     audrey.encore();
   });
 
- program
+program
+  .command('delete <tag-name>') 
+  .description('delete specific version or tag')
+  .action(function(name){
+    //body...
+    deleteGitTag();
+    audrey.encore();
+  }); 
+
+program
   .command('show-w') 
   .description('show copyright')
   .action(function(name){
@@ -170,7 +178,7 @@ program
     printLicense();
   }); 
  
- program
+program
   .command('show-c') 
   .description('license details')
   .action(function(name){
@@ -181,12 +189,11 @@ program
   //command error checker
 program
   .command('*')
-  .description('error checker commander')
+  .description('error checker for commander')
   .action(function(env){
    audrey.err("E01", "Not a correct command.", "Try with --help command");
    audrey.encore();
 });
-
 
 
 
@@ -798,13 +805,45 @@ function writePrerelease(lastTag){
     
   }
 }
+function deleteGitTag(){
+var look=lookForCT(program.rawArgs[3]);
+if(look){
+  com('git', ["tag", program.rawArgs[3], "-d"], function(resp){
+    console.log(resp);
+      });
+      audrey.err("S01", "Deleted git tag");
+      if(program.verbose) {
+        audrey.fertilize({name: ">>tags", value:"tags in your repository.. ", color:"green"}, "footer");
 
+        com('git', ["tag"], function(resp){
+          console.log(resp);//solved with consol to finish quickly
+        });
+      }
+}
+else{
+  audrey.err("W04", "Something was wrong with the name of the tag, can't delete tag");
+
+}   
+
+}
 function lookFor(lastTag){
 
   try{
     // array wher store the names of the git-tags 
     var gs = fs.readFileSync('./.git/refs/tags/'+preformat+lastTag[0]+"."
     +lastTag[1]+"."+lastTag[2]);
+    return true;
+  }
+  catch(err){
+    return false;
+  }
+
+}
+
+function lookForCT(tag){
+  try{
+    // array wher store the names of the git-tags 
+    var gs = fs.readFileSync('./.git/refs/tags/'+tag);
     return true;
   }
   catch(err){
