@@ -252,24 +252,37 @@ if(!program.prerelease){
   }
 }
 }catch(err){
+  //manual break--> don't do nothing with the tags
   program.major=false;
   program.children=false;
   program.grandChild=false;
   program.undo=false;
   audrey.err("E04", "There is no release tags");
 }
-//for update tags
+// update tags
 if (program.grandChild || program.children || program.major){
 
  if(program.prerelease){
   if(program.rawArgs[4] && !program.anotated){
     // there is an argument as the name of the tag
     //add one to the version
+    var vari= program.rawArgs[4].toString();
+    var correctFormat= vari.match(/^[0-9]+[.][0-9]+[.][0-9]+$/);
+    var correctFormat2=vari.match(/^[(Alpha)(alpha)(ALPHA)(A)(a)(beta)(Beta)(BETA)(B)(b)(rc)(Rc)(RC)]+[.][0-9]+[.][0-9]+$/);
+    if(correctFormat || correctFormat2){
       nlastTag=addOne(lastTag);
       newVersion= nlastTag[0]+"."+nlastTag[1]+"."+nlastTag[2];
     //write tag to git
       writeTagToGit(preformat+ newVersion+"-"+ program.rawArgs[4]);
       audrey.err("S03","Writting version prerelease", newVersion +"-"+ program.rawArgs[4]);  
+    }
+    else  {
+      audrey.err("W05","Worng tag, remember prerelease format\nmust be..\n\n"  
+        +"    /^[0-9]+[.][0-9]+[.][0-9]+$/ \nor..\n\n"
+        +"    /^[(Alpha)(alpha)(ALPHA)(A)(a)\n       (Beta) (beta) (BETA) (B)(b)\n"
+        +"       (Rc)   (rc)   (RC)         ] +[.][0-9]+[.][0-9]+$/"
+        +"\nnot..\n    ", program.rawArgs[4]);  
+    }
   }
   else {
     //there is not an argument as name of prerelease tag
@@ -285,7 +298,7 @@ if (program.grandChild || program.children || program.major){
 
 
 
-//for delete tags
+//delete tags
 if (program.undo){
 //look if the last tag is not a prerelease
  var looktag=lookFor(lastTag);
