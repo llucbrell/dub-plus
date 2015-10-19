@@ -150,7 +150,7 @@ Deletes specified tag.
 ## Version specifications
 
 * v1.0.0 - first program release, version counter
-* v1.1.0 - prerelease counter support
+* v1.2.0 - prerelease counter support
 
 ## Dependencies
 
