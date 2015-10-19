@@ -163,7 +163,7 @@ program
 
 program
   .command('delete <tag-name>') 
-  .description('delete specific version or tag')
+  .description('delete specific tag by name')
   .action(function(name){
     //body...
     deleteGitTag();
@@ -280,8 +280,7 @@ if (program.grandChild || program.children || program.major){
       audrey.err("W05","Worng tag, remember prerelease format\nmust be..\n\n"  
         +"    /^[0-9]+[.][0-9]+[.][0-9]+$/ \nor..\n\n"
         +"    /^[(Alpha)(alpha)(ALPHA)(A)(a)\n       (Beta) (beta) (BETA) (B)(b)\n"
-        +"       (Rc)   (rc)   (RC)         ] +[.][0-9]+[.][0-9]+$/"
-        +"\nnot..\n    ", program.rawArgs[4]);  
+        +"       (Rc)   (rc)   (RC)         ] +[.][0-9]+[.][0-9]+$/", "\nnot..    "+ program.rawArgs[4]);  
     }
   }
   else {
